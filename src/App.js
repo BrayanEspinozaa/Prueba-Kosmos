@@ -1,5 +1,6 @@
 import React, { useRef, useState, useEffect } from "react";
 import Moveable from "react-moveable";
+import './styles.css'
 
 const App = () => {
   const [moveableComponents, setMoveableComponents] = useState([]);
@@ -7,16 +8,16 @@ const App = () => {
   const [images, setimages] = useState([])
 
   useEffect(() => {
-/* Fetching the images from the API and setting them in the state. */
+    /* Fetching the images from the API and setting them in the state. */
     fetch('https://jsonplaceholder.typicode.com/photos')
       .then(res => res.json())
       .then(data => setimages(data))
   }, [])
 
   const deleteItem = (id) => {
-   /* Filtering the array of components and removing the component with the id that was passed as a
-   parameter. */
-    setMoveableComponents(moveableComponents.filter(item => item.id!== id));
+    /* Filtering the array of components and removing the component with the id that was passed as a
+    parameter. */
+    setMoveableComponents(moveableComponents.filter(item => item.id !== id));
   }
 
   const addMoveable = () => {
@@ -24,7 +25,7 @@ const App = () => {
     const COLORS = ["red", "blue", "yellow", "green", "purple"];
     const FITS = ["cover", "fill", "contain", "none", "scale-down"]
 
-/* Adding a new component to the array of components. */
+    /* Adding a new component to the array of components. */
     setMoveableComponents([
       ...moveableComponents,
       {
@@ -42,7 +43,7 @@ const App = () => {
   };
 
   const updateMoveable = (id, newComponent, updateEnd = false) => {
-/* Updating the state of the component. */
+    /* Updating the state of the component. */
     const updatedMoveables = moveableComponents.map((moveable, i) => {
       if (moveable.id === id) {
         return { id, ...newComponent, updateEnd };
@@ -74,13 +75,13 @@ const App = () => {
   };
 
   return (
-    <main style={{ height: "100vh", width: "100vw" }}>
-      <button onClick={addMoveable}>Add Moveable1</button>
+    <main style={{ backgroundColor: '#E9E9E9', height: "100vh", width: "100vw", display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+      <button onClick={addMoveable}>Add Moveable +</button>
       <div
         id="parent"
         style={{
           position: "relative",
-          background: "black",
+          background: "#282929",
           height: "80vh",
           width: "80vw",
         }}
@@ -132,6 +133,9 @@ const Component = ({
     src,
     id,
   });
+  const [frame, setFrame] = React.useState({
+    translate: [0, 0],
+  });
 
   let parent = document.getElementById("parent");
   let parentBounds = parent?.getBoundingClientRect();
@@ -143,10 +147,10 @@ const Component = ({
     // console.log('PARENT', parentBounds)
     console.log(e.top >= parentBounds.height - height)
 
-/* Preventing the component from going out of the parent container. */
+    /* Preventing the component from going out of the parent container. */
     updateMoveable(id, {
       top: e.top >= parentBounds.height - height || e.top <= 0 ? top : e.top,
-      left: e.left <= 0 ||   e.left >= parentBounds.width - width ? left : e.left,
+      left: e.left <= 0 || e.left >= parentBounds.width - width ? left : e.left,
       width,
       height,
       src,
@@ -189,7 +193,9 @@ const Component = ({
 
     console.log(e.drag)
 
-    // ref.current.style.transform = e.drag.transform;
+    frame.translate = beforeTranslate;
+
+    ref.target.style.transform = `translate(${beforeTranslate[0]}px, ${beforeTranslate[1]}px)`;
 
     setNodoReferencia({
       ...nodoReferencia,
@@ -250,8 +256,8 @@ const Component = ({
         }}
         onClick={() => setSelected(id)}
       >
-        <div style={{position:'relative'}}>
-          <span  onClick={() => deleteItem(id)} style={{position: 'absolute', top: 2, right: 2, cursor: 'pointer'}}>
+        <div style={{ position: 'relative' }}>
+          <span onClick={() => deleteItem(id)} style={{ position: 'absolute', top: 2, right: 2, cursor: 'pointer' }}>
             Eliminar
           </span>
         </div>
@@ -262,6 +268,10 @@ const Component = ({
         resizable
         draggable
         onDrag={onDrag}
+        onResizeStart={e => {
+          e.setOrigin(["%", "%"]);
+          e.dragStart && e.dragStart.set(frame.translate);
+        }}
         onResize={onResize}
         onResizeEnd={onResizeEnd}
         keepRatio={false}

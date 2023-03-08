@@ -1,3 +1,9 @@
+* {
+  padding: 0;
+  margin: 0;
+  border: 0;
+}
+
 .title {
   font-family: sans-serif;
   text-align: center;
@@ -12,13 +18,18 @@
   gap: 1em;
 }
 
-.button {
+button {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 30px;
+  width: 200px;
   height: 30px;
-  border-radius: 50%;
+  border-radius: 8px;
   border: none;
-  font-size: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-bottom: 6px;
 }
+ button:hover{
+  opacity: .8;
+ }
