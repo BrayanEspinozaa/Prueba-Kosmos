@@ -7,12 +7,15 @@ const App = () => {
   const [images, setimages] = useState([])
 
   useEffect(() => {
+/* Fetching the images from the API and setting them in the state. */
     fetch('https://jsonplaceholder.typicode.com/photos')
       .then(res => res.json())
       .then(data => setimages(data))
   }, [])
 
   const deleteItem = (id) => {
+   /* Filtering the array of components and removing the component with the id that was passed as a
+   parameter. */
     setMoveableComponents(moveableComponents.filter(item => item.id!== id));
   }
 
@@ -21,6 +24,7 @@ const App = () => {
     const COLORS = ["red", "blue", "yellow", "green", "purple"];
     const FITS = ["cover", "fill", "contain", "none", "scale-down"]
 
+/* Adding a new component to the array of components. */
     setMoveableComponents([
       ...moveableComponents,
       {
@@ -38,6 +42,7 @@ const App = () => {
   };
 
   const updateMoveable = (id, newComponent, updateEnd = false) => {
+/* Updating the state of the component. */
     const updatedMoveables = moveableComponents.map((moveable, i) => {
       if (moveable.id === id) {
         return { id, ...newComponent, updateEnd };
@@ -133,26 +138,25 @@ const Component = ({
 
   const onDrag = async (e) => {
 
-    console.log('DRAG', e.top)
-    console.log('PARENT', parentBounds)
+    console.log('DRAG_TOP', top)
+    console.log('HEIGHT', height)
+    // console.log('PARENT', parentBounds)
+    console.log(e.top >= parentBounds.height - height)
 
-    if (e.top >= parentBounds.height - height ||
-      e.top <= 0 ||
-      e.left <= 0 ||
-      e.left >= parentBounds.width - width
-    ) return
-
+/* Preventing the component from going out of the parent container. */
     updateMoveable(id, {
-      top: e.top,
-      left: e.left,
+      top: e.top >= parentBounds.height - height || e.top <= 0 ? top : e.top,
+      left: e.left <= 0 ||   e.left >= parentBounds.width - width ? left : e.left,
       width,
       height,
       src,
       objectFit
-    });
+    }, true);
   }
 
   const onResize = async (e) => {
+
+    console.log(e)
     // ACTUALIZAR ALTO Y ANCHO
     let newWidth = e.width;
     let newHeight = e.height;
@@ -160,6 +164,7 @@ const Component = ({
     const positionMaxTop = top + newHeight;
     const positionMaxLeft = left + newWidth;
 
+    /* Preventing the component from going out of the parent container. */
     if (positionMaxTop > parentBounds?.height)
       newHeight = parentBounds?.height - top;
     if (positionMaxLeft > parentBounds?.width)
@@ -172,18 +177,19 @@ const Component = ({
       height: newHeight,
       src,
       objectFit
-    });
+    }, true);
 
     // ACTUALIZAR NODO REFERENCIA
     const beforeTranslate = e.drag.beforeTranslate;
-
     ref.current.style.width = `${e.width}px`;
     ref.current.style.height = `${e.height}px`;
 
     let translateX = beforeTranslate[0];
     let translateY = beforeTranslate[1];
 
-    ref.current.style.transform = `translate(${translateX}px, ${translateY}px)`;
+    console.log(e.drag)
+
+    // ref.current.style.transform = e.drag.transform;
 
     setNodoReferencia({
       ...nodoReferencia,
@@ -210,8 +216,8 @@ const Component = ({
     const { drag } = lastEvent;
     const { beforeTranslate } = drag;
 
-    const absoluteTop = top + beforeTranslate[1];
-    const absoluteLeft = left + beforeTranslate[0];
+    const absoluteTop = top;
+    const absoluteLeft = left;
 
     updateMoveable(
       id,
